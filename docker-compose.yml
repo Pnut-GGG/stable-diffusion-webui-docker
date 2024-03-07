@@ -2,7 +2,7 @@ version: '3.9'
 
 x-base_service: &base_service
     ports:
-      - "${WEBUI_PORT:-7860}:7860"
+      - "7860"
     volumes:
       - &v1 ./data:/data
       - &v2 ./output:/output
@@ -31,14 +31,22 @@ services:
     build: ./services/AUTOMATIC1111
     image: sd-auto:72
     environment:
-      - CLI_ARGS=--allow-code --medvram --xformers --enable-insecure-extension-access --api
+      - CLI_ARGS=--allow-code --medvram --xformers --enable-insecure-extension-access --api --share
+      - TZ=Asia/Shanghai
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
 
   auto-cpu:
     <<: *automatic
     profiles: ["auto-cpu"]
     deploy: {}
     environment:
-      - CLI_ARGS=--no-half --precision full --allow-code --enable-insecure-extension-access --api
+      - CLI_ARGS=--no-half --precision full --allow-code --enable-insecure-extension-access --api --share
+      - TZ=Asia/Shanghai
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
 
   invoke: &invoke
     <<: *base_service
@@ -48,6 +56,10 @@ services:
     environment:
       - PRELOAD=true
       - CLI_ARGS=--xformers
+      - TZ=Asia/Shanghai
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
 
   # invoke-cpu:
   #   <<: *invoke
@@ -63,6 +75,10 @@ services:
     image: sd-comfy:6
     environment:
       - CLI_ARGS=
+      - TZ=Asia/Shanghai
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
 
 
   comfy-cpu:
@@ -71,3 +87,7 @@ services:
     deploy: {}
     environment:
       - CLI_ARGS=--cpu
+      - TZ=Asia/Shanghai
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
